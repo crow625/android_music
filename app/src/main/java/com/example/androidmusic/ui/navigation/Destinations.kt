@@ -1,6 +1,10 @@
 package com.example.androidmusic.ui.navigation
 
-/** Navigation routes. Expanded as screens are added in later phases. */
+/** Navigation routes. Albums/Artists/Playlists are placeholders until later phases. */
 object Destinations {
-    const val HOME = "home"
+    const val LIBRARY = "library"
+    const val ALBUMS = "albums"
+    const val ARTISTS = "artists"
+    const val PLAYLISTS = "playlists"
+    const val SOURCES = "sources"
 }

@@ -1,13 +1,12 @@
 package com.example.androidmusic.di
 
 import android.content.Context
-import androidx.room.Room
+import com.example.androidmusic.data.db.AppDatabase
 import com.example.androidmusic.diagnostics.DefaultDispatcherProvider
 import com.example.androidmusic.diagnostics.LogFileWriter
 import com.example.androidmusic.diagnostics.RoomDiagnosticReporter
 import com.example.androidmusic.diagnostics.SystemClock
 import com.example.androidmusic.diagnostics.TimberLogger
-import com.example.androidmusic.diagnostics.db.AppDatabase
 import com.example.androidmusic.diagnostics.db.DiagnosticEventDao
 import com.example.androidmusic.domain.concurrency.DispatcherProvider
 import com.example.androidmusic.domain.diagnostics.DiagnosticReporter
@@ -44,11 +43,6 @@ abstract class DiagnosticsModule {
     abstract fun bindDiagnosticReporter(impl: RoomDiagnosticReporter): DiagnosticReporter
 
     companion object {
-        @Provides
-        @Singleton
-        fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase =
-            Room.databaseBuilder(context, AppDatabase::class.java, "android_music.db").build()
-
         @Provides
         fun provideDiagnosticEventDao(database: AppDatabase): DiagnosticEventDao =
             database.diagnosticEventDao()
