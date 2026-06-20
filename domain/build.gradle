@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
+    id 'java-test-fixtures'
 }
 
 java {
@@ -17,6 +18,10 @@ dependencies {
     // Pure-Kotlin module: NO Android dependencies allowed here. The absence of the
     // Android Gradle plugin means an `android.*` import will fail to compile.
     api libs.kotlinx.coroutines.core
+
+    // Shared test fakes/builders, reusable by the :app module via
+    // testImplementation(testFixtures(project(':domain'))).
+    testFixturesImplementation libs.kotlinx.coroutines.core
 
     testImplementation libs.junit
     testImplementation libs.turbine
