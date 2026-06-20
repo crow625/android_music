@@ -1,0 +1,24 @@
+plugins {
+    alias(libs.plugins.kotlin.jvm)
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+    }
+}
+
+dependencies {
+    // Pure-Kotlin module: NO Android dependencies allowed here. The absence of the
+    // Android Gradle plugin means an `android.*` import will fail to compile.
+    api libs.kotlinx.coroutines.core
+
+    testImplementation libs.junit
+    testImplementation libs.turbine
+    testImplementation libs.kotlinx.coroutines.test
+}

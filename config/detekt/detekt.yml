@@ -1,0 +1,55 @@
+# detekt configuration. Extends the bundled defaults (buildUponDefaultConfig = true).
+# The central purpose here is to enforce the project's "never swallow errors"
+# principle at build time; a few noisy stylistic rules are relaxed.
+
+build:
+  maxIssues: 0
+
+exceptions:
+  # The core "no silent catch" enforcement.
+  SwallowedException:
+    active: true
+    ignoredExceptionTypes:
+      - 'InterruptedException'
+      - 'NumberFormatException'
+      - 'ParseException'
+  TooGenericExceptionCaught:
+    active: true
+    excludes: ['**/test/**', '**/androidTest/**']
+  ThrowingExceptionFromFinally:
+    active: true
+  ReturnFromFinally:
+    active: true
+
+empty-blocks:
+  EmptyCatchBlock:
+    active: true
+
+naming:
+  FunctionNaming:
+    active: true
+    ignoreAnnotated: ['Composable', 'Test']
+  TopLevelPropertyNaming:
+    active: true
+
+style:
+  MagicNumber:
+    active: false
+  WildcardImport:
+    active: true
+  ForbiddenComment:
+    active: false
+  ReturnCount:
+    active: false
+  UnusedPrivateMember:
+    active: true
+  NewLineAtEndOfFile:
+    active: true
+
+complexity:
+  LongMethod:
+    active: false
+  TooManyFunctions:
+    active: false
+
+comments: {}
