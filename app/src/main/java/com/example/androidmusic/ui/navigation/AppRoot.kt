@@ -2,6 +2,7 @@ package com.example.androidmusic.ui.navigation
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.PlaylistPlay
 import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.Folder
@@ -42,14 +43,26 @@ private val topLevelDestinations = listOf(
 @Composable
 fun AppRoot(navController: NavHostController = rememberNavController()) {
     val currentRoute by navController.currentRouteAsState()
+    val isTopLevel = currentRoute == null || topLevelDestinations.any { it.route == currentRoute }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(titleFor(currentRoute)) },
+                navigationIcon = {
+                    if (!isTopLevel) {
+                        IconButton(onClick = { navController.navigateUp() }) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        }
+                    }
+                },
                 actions = {
-                    IconButton(onClick = { navController.navigate(Destinations.SOURCES) }) {
-                        Icon(Icons.Filled.Folder, contentDescription = "Folder sources")
+                    if (isTopLevel) {
+                        IconButton(onClick = {
+                            navController.navigate(Destinations.SOURCES) { launchSingleTop = true }
+                        }) {
+                            Icon(Icons.Filled.Folder, contentDescription = "Folder sources")
+                        }
                     }
                 },
             )
@@ -90,10 +103,12 @@ private fun NavHostController.currentRouteAsState(): androidx.compose.runtime.St
 }
 
 private fun NavHostController.navigateTopLevel(route: String) {
+    if (currentDestination?.route == route) return
     navigate(route) {
-        popUpTo(graph.findStartDestination().id) { saveState = true }
+        // Pop back to the start destination (clearing any pushed screen like
+        // Folder Sources) so tapping a tab always returns to that tab.
+        popUpTo(graph.findStartDestination().id) { inclusive = false }
         launchSingleTop = true
-        restoreState = true
     }
 }
 
