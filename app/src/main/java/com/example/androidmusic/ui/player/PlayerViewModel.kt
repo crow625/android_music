@@ -2,7 +2,10 @@ package com.example.androidmusic.ui.player
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.androidmusic.domain.model.PlayQueue
+import com.example.androidmusic.domain.model.PlaybackProgress
 import com.example.androidmusic.domain.model.PlaybackState
+import com.example.androidmusic.domain.model.RepeatMode
 import com.example.androidmusic.domain.player.ConnectionState
 import com.example.androidmusic.domain.player.PlaybackController
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,16 +26,14 @@ class PlayerViewModel @Inject constructor(
 ) : ViewModel() {
 
     val uiState: StateFlow<PlayerUiState> =
-        combine(controller.connection, controller.state, controller.queue) { connection, state, queue ->
-            val index = state.indexOrNull()
-            val track = index?.let { queue.items.getOrNull(it) }
-            PlayerUiState(
-                isConnected = connection == ConnectionState.Connected,
-                currentTrack = track?.let {
-                    NowPlayingTrack(it.id, it.title, it.artist, it.albumArtUri?.value)
-                },
-                isPlaying = state is PlaybackState.Playing,
-            )
+        combine(
+            controller.connection,
+            controller.state,
+            controller.queue,
+            controller.progress,
+            controller.repeatMode,
+        ) { connection, state, queue, progress, repeatMode ->
+            toUiState(connection, state, queue, progress, repeatMode)
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), PlayerUiState())
 
     fun onPlayPause() {
@@ -40,8 +41,38 @@ class PlayerViewModel @Inject constructor(
     }
 
     fun onNext() = controller.skipToNext()
-
     fun onPrevious() = controller.skipToPrevious()
+    fun onSeek(positionMs: Long) = controller.seekTo(positionMs)
+    fun onToggleShuffle() = controller.toggleShuffle()
+    fun onCycleRepeat() = controller.cycleRepeatMode()
+    fun onJumpTo(index: Int) = controller.skipToQueueItem(index)
+    fun onRemoveFromQueue(index: Int) = controller.removeQueueItem(index)
+    fun onClearQueue() = controller.clearQueue()
+
+    private fun toUiState(
+        connection: ConnectionState,
+        state: PlaybackState,
+        queue: PlayQueue,
+        progress: PlaybackProgress,
+        repeatMode: RepeatMode,
+    ): PlayerUiState {
+        val index = state.indexOrNull()
+        val current = index?.let { queue.items.getOrNull(it) }
+        return PlayerUiState(
+            isConnected = connection == ConnectionState.Connected,
+            currentTrack = current?.let {
+                NowPlayingTrack(it.id, it.title, it.artist, it.album, it.albumArtUri?.value)
+            },
+            isPlaying = state is PlaybackState.Playing,
+            positionMs = progress.positionMs,
+            durationMs = progress.durationMs,
+            isShuffleOn = queue.shuffled,
+            repeatMode = repeatMode,
+            queue = queue.items.mapIndexed { i, file ->
+                QueueItemUi(i, file.id, file.title, file.artist, isCurrent = i == index)
+            },
+        )
+    }
 
     private companion object {
         const val STOP_TIMEOUT_MS = 5_000L

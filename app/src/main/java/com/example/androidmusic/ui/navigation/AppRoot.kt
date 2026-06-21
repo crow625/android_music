@@ -32,6 +32,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.androidmusic.ui.common.PlaceholderScreen
 import com.example.androidmusic.ui.library.LibraryRoute
 import com.example.androidmusic.ui.player.MiniPlayer
+import com.example.androidmusic.ui.player.NowPlayingRoute
 import com.example.androidmusic.ui.player.PlayerViewModel
 import com.example.androidmusic.ui.sources.SourcesRoute
 
@@ -73,22 +74,27 @@ fun AppRoot(navController: NavHostController = rememberNavController()) {
             )
         },
         bottomBar = {
-            Column {
-                val playerViewModel: PlayerViewModel = hiltViewModel()
-                val playerState by playerViewModel.uiState.collectAsStateWithLifecycle()
-                MiniPlayer(
-                    state = playerState,
-                    onPlayPause = playerViewModel::onPlayPause,
-                    onNext = playerViewModel::onNext,
-                )
-                NavigationBar {
-                    topLevelDestinations.forEach { destination ->
-                        NavigationBarItem(
-                            selected = currentRoute == destination.route,
-                            onClick = { navController.navigateTopLevel(destination.route) },
-                            icon = { Icon(destination.icon, contentDescription = destination.label) },
-                            label = { Text(destination.label) },
-                        )
+            if (currentRoute != Destinations.NOW_PLAYING) {
+                Column {
+                    val playerViewModel: PlayerViewModel = hiltViewModel()
+                    val playerState by playerViewModel.uiState.collectAsStateWithLifecycle()
+                    MiniPlayer(
+                        state = playerState,
+                        onPlayPause = playerViewModel::onPlayPause,
+                        onNext = playerViewModel::onNext,
+                        onClick = {
+                            navController.navigate(Destinations.NOW_PLAYING) { launchSingleTop = true }
+                        },
+                    )
+                    NavigationBar {
+                        topLevelDestinations.forEach { destination ->
+                            NavigationBarItem(
+                                selected = currentRoute == destination.route,
+                                onClick = { navController.navigateTopLevel(destination.route) },
+                                icon = { Icon(destination.icon, contentDescription = destination.label) },
+                                label = { Text(destination.label) },
+                            )
+                        }
                     }
                 }
             }
@@ -106,6 +112,7 @@ fun AppRoot(navController: NavHostController = rememberNavController()) {
             composable(Destinations.ARTISTS) { PlaceholderScreen("Artists") }
             composable(Destinations.PLAYLISTS) { PlaceholderScreen("Playlists") }
             composable(Destinations.SOURCES) { SourcesRoute() }
+            composable(Destinations.NOW_PLAYING) { NowPlayingRoute() }
         }
     }
 }
@@ -131,5 +138,6 @@ private fun titleFor(route: String?): String = when (route) {
     Destinations.ARTISTS -> "Artists"
     Destinations.PLAYLISTS -> "Playlists"
     Destinations.SOURCES -> "Folder sources"
+    Destinations.NOW_PLAYING -> "Now Playing"
     else -> "Library"
 }

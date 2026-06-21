@@ -11,6 +11,7 @@ private val sampleTrack = NowPlayingTrack(
     id = "1",
     title = "Chop Suey!",
     artist = "System of a Down",
+    album = "Toxicity",
     albumArtUri = null,
 )
 
@@ -22,6 +23,7 @@ fun MiniPlayerPlayingPreview() {
             state = PlayerUiState(isConnected = true, currentTrack = sampleTrack, isPlaying = true),
             onPlayPause = {},
             onNext = {},
+            onClick = {},
         )
     }
 }
@@ -34,6 +36,7 @@ fun MiniPlayerPausedPreview() {
             state = PlayerUiState(isConnected = true, currentTrack = sampleTrack, isPlaying = false),
             onPlayPause = {},
             onNext = {},
+            onClick = {},
         )
     }
 }

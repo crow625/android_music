@@ -7,4 +7,5 @@ object Destinations {
     const val ARTISTS = "artists"
     const val PLAYLISTS = "playlists"
     const val SOURCES = "sources"
+    const val NOW_PLAYING = "now-playing"
 }

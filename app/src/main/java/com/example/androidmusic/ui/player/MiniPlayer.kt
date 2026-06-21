@@ -1,5 +1,6 @@
 package com.example.androidmusic.ui.player
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,6 +29,7 @@ fun MiniPlayer(
     state: PlayerUiState,
     onPlayPause: () -> Unit,
     onNext: () -> Unit,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val track = state.currentTrack ?: return
@@ -38,7 +40,7 @@ fun MiniPlayer(
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp, vertical = 8.dp),
         ) {
-            Column(modifier = Modifier.weight(1f)) {
+            Column(modifier = Modifier.weight(1f).clickable(onClick = onClick)) {
                 Text(
                     text = track.title,
                     style = MaterialTheme.typography.titleSmall,
