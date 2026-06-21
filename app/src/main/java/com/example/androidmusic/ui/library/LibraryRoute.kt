@@ -18,6 +18,7 @@ fun LibraryRoute(
         onEvent = { event ->
             when (event) {
                 LibraryEvent.OpenSources -> onOpenSources()
+                is LibraryEvent.PlayTrack -> viewModel.onTrackClicked(event.trackId)
             }
         },
         modifier = modifier,

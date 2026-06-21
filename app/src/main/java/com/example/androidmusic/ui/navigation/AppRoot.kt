@@ -1,5 +1,6 @@
 package com.example.androidmusic.ui.navigation
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -20,6 +21,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -28,6 +31,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.androidmusic.ui.common.PlaceholderScreen
 import com.example.androidmusic.ui.library.LibraryRoute
+import com.example.androidmusic.ui.player.MiniPlayer
+import com.example.androidmusic.ui.player.PlayerViewModel
 import com.example.androidmusic.ui.sources.SourcesRoute
 
 private data class TopLevelDestination(val route: String, val label: String, val icon: ImageVector)
@@ -68,14 +73,23 @@ fun AppRoot(navController: NavHostController = rememberNavController()) {
             )
         },
         bottomBar = {
-            NavigationBar {
-                topLevelDestinations.forEach { destination ->
-                    NavigationBarItem(
-                        selected = currentRoute == destination.route,
-                        onClick = { navController.navigateTopLevel(destination.route) },
-                        icon = { Icon(destination.icon, contentDescription = destination.label) },
-                        label = { Text(destination.label) },
-                    )
+            Column {
+                val playerViewModel: PlayerViewModel = hiltViewModel()
+                val playerState by playerViewModel.uiState.collectAsStateWithLifecycle()
+                MiniPlayer(
+                    state = playerState,
+                    onPlayPause = playerViewModel::onPlayPause,
+                    onNext = playerViewModel::onNext,
+                )
+                NavigationBar {
+                    topLevelDestinations.forEach { destination ->
+                        NavigationBarItem(
+                            selected = currentRoute == destination.route,
+                            onClick = { navController.navigateTopLevel(destination.route) },
+                            icon = { Icon(destination.icon, contentDescription = destination.label) },
+                            label = { Text(destination.label) },
+                        )
+                    }
                 }
             }
         },

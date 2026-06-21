@@ -1,5 +1,6 @@
 package com.example.androidmusic.domain.player
 
+import com.example.androidmusic.domain.model.PlayQueue
 import com.example.androidmusic.domain.model.PlaybackState
 import com.example.androidmusic.domain.model.QueueSource
 import kotlinx.coroutines.flow.StateFlow
@@ -15,7 +16,11 @@ interface PlaybackController {
     val connection: StateFlow<ConnectionState>
     val state: StateFlow<PlaybackState>
 
-    fun playSource(source: QueueSource, startIndex: Int = 0)
+    /** The queue currently loaded into the player (drives the now-playing/queue UI). */
+    val queue: StateFlow<PlayQueue>
+
+    /** Builds a queue from [source] and starts playback (the source encodes where to start). */
+    fun playSource(source: QueueSource)
     fun play()
     fun pause()
     fun skipToNext()

@@ -19,4 +19,5 @@ data class LibraryUiState(
 /** Events emitted by [LibraryScreen]. */
 sealed interface LibraryEvent {
     data object OpenSources : LibraryEvent
+    data class PlayTrack(val trackId: String) : LibraryEvent
 }

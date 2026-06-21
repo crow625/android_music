@@ -1,5 +1,6 @@
 package com.example.androidmusic.ui.library
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,18 +37,23 @@ fun LibraryScreen(
                 modifier = Modifier.padding(24.dp),
             )
             state.isEmpty -> EmptyLibrary(onAddFolder = { onEvent(LibraryEvent.OpenSources) })
-            else -> TrackList(state.tracks)
+            else -> TrackList(state.tracks, onTrackClick = { onEvent(LibraryEvent.PlayTrack(it)) })
         }
     }
 }
 
 @Composable
-private fun TrackList(tracks: List<TrackUi>, modifier: Modifier = Modifier) {
+private fun TrackList(
+    tracks: List<TrackUi>,
+    onTrackClick: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     LazyColumn(modifier = modifier.fillMaxSize()) {
         items(tracks, key = { it.id }) { track ->
             ListItem(
                 headlineContent = { Text(track.title) },
                 supportingContent = { Text("${track.artist} · ${track.album}") },
+                modifier = Modifier.clickable { onTrackClick(track.id) },
             )
             HorizontalDivider()
         }
