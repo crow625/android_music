@@ -62,6 +62,14 @@ android {
     }
 }
 
+// Unit tests only need to run for the debug variant. Disabling the release
+// unit tests roughly halves the Robolectric/KSP test cost in `check`.
+androidComponents {
+    beforeVariants(selector().withBuildType("release")) { variantBuilder ->
+        variantBuilder.enableUnitTest = false
+    }
+}
+
 detekt {
     buildUponDefaultConfig = true
     config.setFrom(rootProject.file("config/detekt/detekt.yml"))
