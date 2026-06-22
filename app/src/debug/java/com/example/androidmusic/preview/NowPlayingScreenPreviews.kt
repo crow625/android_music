@@ -16,7 +16,7 @@ private val sampleState = PlayerUiState(
         title = "Chop Suey!",
         artist = "System of a Down",
         album = "Toxicity",
-        albumArtUri = null,
+        artworkUri = null,
     ),
     isPlaying = true,
     positionMs = 65_000,

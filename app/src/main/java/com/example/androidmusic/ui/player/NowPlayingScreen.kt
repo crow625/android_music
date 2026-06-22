@@ -1,7 +1,6 @@
 package com.example.androidmusic.ui.player
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
@@ -9,10 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.QueueMusic
-import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Repeat
@@ -26,7 +23,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Slider
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,6 +37,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.androidmusic.domain.model.RepeatMode
+import com.example.androidmusic.ui.common.AlbumArtwork
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,7 +54,10 @@ fun NowPlayingScreen(
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        AlbumArt(modifier = Modifier.fillMaxWidth(0.8f).padding(top = 16.dp))
+        AlbumArtwork(
+            artworkUri = track?.artworkUri,
+            modifier = Modifier.padding(top = 16.dp).fillMaxWidth(0.8f).aspectRatio(1f),
+        )
 
         Text(
             text = track?.title ?: "Nothing playing",
@@ -107,25 +107,6 @@ fun NowPlayingScreen(
                 onJumpTo = { onEvent(NowPlayingEvent.JumpTo(it)) },
                 onRemove = { onEvent(NowPlayingEvent.Remove(it)) },
                 onClear = { onEvent(NowPlayingEvent.ClearQueue) },
-            )
-        }
-    }
-}
-
-@Composable
-private fun AlbumArt(modifier: Modifier = Modifier) {
-    // Album art decoding lands in Phase 4; placeholder for now.
-    Surface(
-        shape = RoundedCornerShape(12.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant,
-        modifier = modifier.aspectRatio(1f),
-    ) {
-        Box(contentAlignment = Alignment.Center) {
-            Icon(
-                imageVector = Icons.Filled.MusicNote,
-                contentDescription = null,
-                modifier = Modifier.size(72.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }

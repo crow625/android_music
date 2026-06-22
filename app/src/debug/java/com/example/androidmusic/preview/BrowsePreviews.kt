@@ -39,7 +39,12 @@ fun AlbumsGridPreview() {
 fun AlbumDetailPreview() {
     AndroidMusicTheme(dynamicColor = false) {
         AlbumDetailScreen(
-            state = AlbumDetailUiState(false, "Toxicity", "System of a Down", sampleTracks),
+            state = AlbumDetailUiState(
+                isLoading = false,
+                title = "Toxicity",
+                artist = "System of a Down",
+                tracks = sampleTracks,
+            ),
             onPlayAlbum = {},
             onTrackClick = {},
         )

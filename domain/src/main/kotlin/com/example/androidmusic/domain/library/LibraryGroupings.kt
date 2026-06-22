@@ -34,7 +34,8 @@ object LibraryGroupings {
                     title = first.album,
                     artist = albumArtistOf(first),
                     trackCount = group.size,
-                    artworkUri = group.firstNotNullOfOrNull { it.albumArtUri?.value },
+                    // Embedded art is extracted from a representative track file.
+                    artworkUri = group.first().uri.value,
                 )
             }
             .sortedBy { Normalize.key(it.title) }

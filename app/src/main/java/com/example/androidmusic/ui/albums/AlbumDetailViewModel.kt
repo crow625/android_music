@@ -51,6 +51,7 @@ private fun List<AudioFile>.toAlbumDetailUiState(): AlbumDetailUiState {
         isLoading = false,
         title = first?.album.orEmpty(),
         artist = first?.let { it.albumArtist.ifBlank { it.artist } }.orEmpty(),
+        artworkUri = first?.uri?.value,
         tracks = map { DetailTrackUi(id = it.id, title = it.title, subtitle = it.artist) },
     )
 }

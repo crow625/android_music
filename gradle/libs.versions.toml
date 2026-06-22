@@ -30,6 +30,7 @@ previewScanner = "0.4.0"
 
 detekt = "1.23.7"
 leakcanary = "2.14"
+coil = "2.7.0"
 
 [libraries]
 # Core / lifecycle / activity
@@ -95,6 +96,7 @@ androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-co
 
 # Diagnostics (debug-only)
 leakcanary-android = { group = "com.squareup.leakcanary", name = "leakcanary-android", version.ref = "leakcanary" }
+coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

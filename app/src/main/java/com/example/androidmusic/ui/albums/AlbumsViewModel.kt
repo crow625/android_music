@@ -25,4 +25,5 @@ class AlbumsViewModel @Inject constructor(
     }
 }
 
-internal fun Album.toUi() = AlbumUi(id = id, title = title, artist = artist, trackCount = trackCount)
+internal fun Album.toUi() =
+    AlbumUi(id = id, title = title, artist = artist, trackCount = trackCount, artworkUri = artworkUri)

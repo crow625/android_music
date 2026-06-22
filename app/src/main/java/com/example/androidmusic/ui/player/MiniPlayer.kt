@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
@@ -19,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.androidmusic.ui.common.AlbumArtwork
 
 /**
  * Persistent mini-player bar shown above the bottom nav whenever a track is
@@ -40,7 +42,16 @@ fun MiniPlayer(
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp, vertical = 8.dp),
         ) {
-            Column(modifier = Modifier.weight(1f).clickable(onClick = onClick)) {
+            AlbumArtwork(
+                artworkUri = track.artworkUri,
+                modifier = Modifier.size(40.dp).clickable(onClick = onClick),
+            )
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 8.dp)
+                    .clickable(onClick = onClick),
+            ) {
                 Text(
                     text = track.title,
                     style = MaterialTheme.typography.titleSmall,

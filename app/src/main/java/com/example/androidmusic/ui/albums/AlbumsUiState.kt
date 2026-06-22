@@ -5,6 +5,7 @@ data class AlbumUi(
     val title: String,
     val artist: String,
     val trackCount: Int,
+    val artworkUri: String? = null,
 )
 
 data class AlbumsUiState(

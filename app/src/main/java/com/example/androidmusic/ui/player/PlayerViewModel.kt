@@ -61,7 +61,7 @@ class PlayerViewModel @Inject constructor(
         return PlayerUiState(
             isConnected = connection == ConnectionState.Connected,
             currentTrack = current?.let {
-                NowPlayingTrack(it.id, it.title, it.artist, it.album, it.albumArtUri?.value)
+                NowPlayingTrack(it.id, it.title, it.artist, it.album, artworkUri = it.uri.value)
             },
             isPlaying = state is PlaybackState.Playing,
             positionMs = progress.positionMs,

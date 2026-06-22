@@ -7,7 +7,7 @@ data class NowPlayingTrack(
     val title: String,
     val artist: String,
     val album: String,
-    val albumArtUri: String?,
+    val artworkUri: String?,
 )
 
 data class QueueItemUi(

@@ -12,7 +12,7 @@ private val sampleTrack = NowPlayingTrack(
     title = "Chop Suey!",
     artist = "System of a Down",
     album = "Toxicity",
-    albumArtUri = null,
+    artworkUri = null,
 )
 
 @Preview(name = "MiniPlayer – playing", showBackground = true)
