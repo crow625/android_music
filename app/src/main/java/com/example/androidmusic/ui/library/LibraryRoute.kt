@@ -19,6 +19,8 @@ fun LibraryRoute(
             when (event) {
                 LibraryEvent.OpenSources -> onOpenSources()
                 is LibraryEvent.PlayTrack -> viewModel.onTrackClicked(event.trackId)
+                is LibraryEvent.SetQuery -> viewModel.onSearchChange(event.query)
+                is LibraryEvent.SetSort -> viewModel.onSortChange(event.sortOrder)
             }
         },
         modifier = modifier,

@@ -1,11 +1,10 @@
 package com.example.androidmusic.domain.usecase
 
 import com.example.androidmusic.domain.library.LibraryGroupings
-import com.example.androidmusic.domain.library.Normalize
+import com.example.androidmusic.domain.library.LibraryQuery
 import com.example.androidmusic.domain.model.AudioFile
 import com.example.androidmusic.domain.model.PlayQueue
 import com.example.androidmusic.domain.model.QueueSource
-import com.example.androidmusic.domain.model.SortOrder
 import com.example.androidmusic.domain.repository.AudioFileRepository
 import com.example.androidmusic.domain.repository.PlaylistRepository
 import kotlinx.coroutines.flow.first
@@ -26,7 +25,7 @@ class BuildQueueUseCase(
             queueOf(LibraryGroupings.artistTracks(libraryTracks(), source.artistId))
 
         is QueueSource.FromLibrary ->
-            queueOf(libraryTracks().sortedWith(comparatorFor(source.sortOrder)))
+            queueOf(libraryTracks().sortedWith(LibraryQuery.comparator(source.sortOrder)))
 
         is QueueSource.FromFolder ->
             queueOf(audioFileRepository.listAudioFiles(source.folderUri))
@@ -46,19 +45,4 @@ class BuildQueueUseCase(
 
     private fun queueOf(tracks: List<AudioFile>): PlayQueue =
         PlayQueue(items = tracks, currentIndex = 0)
-
-    private fun comparatorFor(order: SortOrder): Comparator<AudioFile> = when (order) {
-        SortOrder.Title -> compareBy { Normalize.key(it.title) }
-        SortOrder.Artist -> compareBy(
-            { Normalize.key(it.artist) },
-            { Normalize.key(it.album) },
-            { it.discNumber },
-            { it.trackNumber },
-        )
-        SortOrder.Album -> compareBy(
-            { Normalize.key(it.album) },
-            { it.discNumber },
-            { it.trackNumber },
-        )
-    }
 }

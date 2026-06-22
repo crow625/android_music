@@ -43,7 +43,33 @@ class LibraryViewModelTest {
     fun `empty library yields the empty state`() = runTest {
         viewModel(FakeAudioFileRepository(library = Library(emptyList()))).uiState.test {
             val settled = awaitItem().let { if (it.isLoading) awaitItem() else it }
-            assertTrue(settled.isEmpty)
+            assertTrue(settled.isEmptyLibrary)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `search filters and sort orders the displayed tracks`() = runTest {
+        val repository = FakeAudioFileRepository(
+            library = Library(
+                listOf(
+                    audioFile(id = "1", title = "Banana", artist = "A", album = "X"),
+                    audioFile(id = "2", title = "apple", artist = "B", album = "Y"),
+                ),
+            ),
+        )
+        val vm = viewModel(repository)
+
+        vm.uiState.test {
+            // Default sort is Title (case-insensitive): apple, Banana.
+            var state = awaitItem().let { if (it.isLoading) awaitItem() else it }
+            assertEquals(listOf("apple", "Banana"), state.tracks.map { it.title })
+
+            vm.onSearchChange("banana")
+            state = awaitItem()
+            while (state.tracks.size != 1) state = awaitItem()
+            assertEquals(listOf("Banana"), state.tracks.map { it.title })
+            assertTrue(state.hasQuery)
             cancelAndIgnoreRemainingEvents()
         }
     }
