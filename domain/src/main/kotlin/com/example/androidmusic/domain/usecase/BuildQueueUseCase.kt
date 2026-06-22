@@ -1,5 +1,6 @@
 package com.example.androidmusic.domain.usecase
 
+import com.example.androidmusic.domain.library.LibraryGroupings
 import com.example.androidmusic.domain.library.Normalize
 import com.example.androidmusic.domain.model.AudioFile
 import com.example.androidmusic.domain.model.PlayQueue
@@ -19,10 +20,10 @@ class BuildQueueUseCase(
 ) {
     suspend operator fun invoke(source: QueueSource): PlayQueue = when (source) {
         is QueueSource.FromAlbum ->
-            queueOf(libraryTracks().filter { it.album == source.albumId }.sortedWith(ALBUM_ORDER))
+            queueOf(LibraryGroupings.albumTracks(libraryTracks(), source.albumId))
 
         is QueueSource.FromArtist ->
-            queueOf(libraryTracks().filter { it.artist == source.artistId }.sortedWith(ARTIST_ORDER))
+            queueOf(LibraryGroupings.artistTracks(libraryTracks(), source.artistId))
 
         is QueueSource.FromLibrary ->
             queueOf(libraryTracks().sortedWith(comparatorFor(source.sortOrder)))
@@ -48,15 +49,16 @@ class BuildQueueUseCase(
 
     private fun comparatorFor(order: SortOrder): Comparator<AudioFile> = when (order) {
         SortOrder.Title -> compareBy { Normalize.key(it.title) }
-        SortOrder.Artist -> ARTIST_ORDER
-        SortOrder.Album -> ALBUM_WITH_NAME_ORDER
-    }
-
-    private companion object {
-        val ALBUM_ORDER = compareBy<AudioFile>({ it.discNumber }, { it.trackNumber })
-        val ARTIST_ORDER =
-            compareBy<AudioFile>({ Normalize.key(it.album) }, { it.discNumber }, { it.trackNumber })
-        val ALBUM_WITH_NAME_ORDER =
-            compareBy<AudioFile>({ Normalize.key(it.album) }, { it.discNumber }, { it.trackNumber })
+        SortOrder.Artist -> compareBy(
+            { Normalize.key(it.artist) },
+            { Normalize.key(it.album) },
+            { it.discNumber },
+            { it.trackNumber },
+        )
+        SortOrder.Album -> compareBy(
+            { Normalize.key(it.album) },
+            { it.discNumber },
+            { it.trackNumber },
+        )
     }
 }

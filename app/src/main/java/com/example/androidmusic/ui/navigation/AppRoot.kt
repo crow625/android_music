@@ -25,10 +25,16 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.example.androidmusic.ui.albums.AlbumDetailRoute
+import com.example.androidmusic.ui.albums.AlbumsRoute
+import com.example.androidmusic.ui.artists.ArtistDetailRoute
+import com.example.androidmusic.ui.artists.ArtistsRoute
 import com.example.androidmusic.ui.common.PlaceholderScreen
 import com.example.androidmusic.ui.library.LibraryRoute
 import com.example.androidmusic.ui.player.MiniPlayer
@@ -108,11 +114,27 @@ fun AppRoot(navController: NavHostController = rememberNavController()) {
             composable(Destinations.LIBRARY) {
                 LibraryRoute(onOpenSources = { navController.navigate(Destinations.SOURCES) })
             }
-            composable(Destinations.ALBUMS) { PlaceholderScreen("Albums") }
-            composable(Destinations.ARTISTS) { PlaceholderScreen("Artists") }
+            composable(Destinations.ALBUMS) {
+                AlbumsRoute(onOpenAlbum = { navController.navigate(Destinations.albumDetail(it)) })
+            }
+            composable(Destinations.ARTISTS) {
+                ArtistsRoute(onOpenArtist = { navController.navigate(Destinations.artistDetail(it)) })
+            }
             composable(Destinations.PLAYLISTS) { PlaceholderScreen("Playlists") }
             composable(Destinations.SOURCES) { SourcesRoute() }
             composable(Destinations.NOW_PLAYING) { NowPlayingRoute() }
+            composable(
+                route = Destinations.ALBUM_DETAIL,
+                arguments = listOf(navArgument(Destinations.ALBUM_ID_ARG) { type = NavType.StringType }),
+            ) {
+                AlbumDetailRoute()
+            }
+            composable(
+                route = Destinations.ARTIST_DETAIL,
+                arguments = listOf(navArgument(Destinations.ARTIST_ID_ARG) { type = NavType.StringType }),
+            ) {
+                ArtistDetailRoute(onOpenAlbum = { navController.navigate(Destinations.albumDetail(it)) })
+            }
         }
     }
 }
@@ -139,5 +161,7 @@ private fun titleFor(route: String?): String = when (route) {
     Destinations.PLAYLISTS -> "Playlists"
     Destinations.SOURCES -> "Folder sources"
     Destinations.NOW_PLAYING -> "Now Playing"
+    Destinations.ALBUM_DETAIL -> "Album"
+    Destinations.ARTIST_DETAIL -> "Artist"
     else -> "Library"
 }

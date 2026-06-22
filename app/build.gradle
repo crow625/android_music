@@ -57,6 +57,9 @@ android {
                 def testTmp = layout.buildDirectory.dir("test-tmp").get().asFile
                 test.doFirst { testTmp.mkdirs() }
                 test.systemProperty 'java.io.tmpdir', testTmp.absolutePath
+                // The forked test JVM (Robolectric + native Compose rendering) needs
+                // real heap; the small default caused GC thrashing on screenshot tests.
+                test.maxHeapSize = "2g"
             }
         }
     }

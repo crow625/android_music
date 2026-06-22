@@ -32,12 +32,21 @@ class PreviewScreenshotTest(
     }
 
     companion object {
+        // Previews containing infinite animations (indeterminate progress
+        // indicators) never let the Compose clock go idle, so the capture spins
+        // for minutes. They remain @Preview for IDE reference but are not goldens.
+        private val ANIMATED_PREVIEWS = setOf(
+            "LibraryLoadingPreview",
+            "SourcesScanningPreview",
+        )
+
         @JvmStatic
         @ParameterizedRobolectricTestRunner.Parameters
         fun previews(): List<ComposablePreview<AndroidPreviewInfo>> =
             AndroidComposablePreviewScanner()
                 .scanPackageTrees("com.example.androidmusic.preview")
                 .getPreviews()
+                .filterNot { it.methodName in ANIMATED_PREVIEWS }
 
         private fun ComposablePreview<AndroidPreviewInfo>.fileName(): String =
             "${declaringClass.substringAfterLast('.')}_$methodName"

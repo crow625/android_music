@@ -3,6 +3,11 @@ package com.example.androidmusic.di
 import com.example.androidmusic.domain.repository.AudioFileRepository
 import com.example.androidmusic.domain.repository.SourceRepository
 import com.example.androidmusic.domain.usecase.AddSourceUseCase
+import com.example.androidmusic.domain.usecase.GetAlbumTracksUseCase
+import com.example.androidmusic.domain.usecase.GetAlbumsUseCase
+import com.example.androidmusic.domain.usecase.GetArtistAlbumsUseCase
+import com.example.androidmusic.domain.usecase.GetArtistTracksUseCase
+import com.example.androidmusic.domain.usecase.GetArtistsUseCase
 import com.example.androidmusic.domain.usecase.ObserveLibraryUseCase
 import com.example.androidmusic.domain.usecase.ObserveSourcesUseCase
 import com.example.androidmusic.domain.usecase.RemoveSourceUseCase
@@ -39,4 +44,19 @@ object UseCaseModule {
         sourceRepository: SourceRepository,
         audioFileRepository: AudioFileRepository,
     ) = ScanLibraryUseCase(sourceRepository, audioFileRepository)
+
+    @Provides
+    fun provideGetAlbumsUseCase(repository: AudioFileRepository) = GetAlbumsUseCase(repository)
+
+    @Provides
+    fun provideGetArtistsUseCase(repository: AudioFileRepository) = GetArtistsUseCase(repository)
+
+    @Provides
+    fun provideGetAlbumTracksUseCase(repository: AudioFileRepository) = GetAlbumTracksUseCase(repository)
+
+    @Provides
+    fun provideGetArtistAlbumsUseCase(repository: AudioFileRepository) = GetArtistAlbumsUseCase(repository)
+
+    @Provides
+    fun provideGetArtistTracksUseCase(repository: AudioFileRepository) = GetArtistTracksUseCase(repository)
 }

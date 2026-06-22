@@ -1,5 +1,6 @@
 package com.example.androidmusic.domain.usecase
 
+import com.example.androidmusic.domain.library.LibraryGroupings
 import com.example.androidmusic.domain.model.Library
 import com.example.androidmusic.domain.model.MediaUri
 import com.example.androidmusic.domain.model.PlaylistEntry
@@ -28,7 +29,7 @@ class BuildQueueUseCaseTest {
     @Test
     fun `FromAlbum returns only that album, in disc-track order`() = runTest {
         val queue = useCase(Library(listOf(albumA1, albumA2, albumB1)))
-            .invoke(QueueSource.FromAlbum("Album A"))
+            .invoke(QueueSource.FromAlbum(LibraryGroupings.albumKey(albumA1)))
 
         assertEquals(listOf("a2", "a1"), queue.items.map { it.id })
         assertEquals(0, queue.currentIndex)
@@ -41,7 +42,7 @@ class BuildQueueUseCaseTest {
         val x3 = audioFile(id = "x3", artist = "Artist X", album = "A", trackNumber = 1)
 
         val queue = useCase(Library(listOf(x1, x2, x3, albumB1)))
-            .invoke(QueueSource.FromArtist("Artist X"))
+            .invoke(QueueSource.FromArtist(LibraryGroupings.artistKey(x1)))
 
         assertEquals(listOf("x3", "x2", "x1"), queue.items.map { it.id })
     }
