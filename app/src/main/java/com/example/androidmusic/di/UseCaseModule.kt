@@ -1,8 +1,12 @@
 package com.example.androidmusic.di
 
 import com.example.androidmusic.domain.repository.AudioFileRepository
+import com.example.androidmusic.domain.repository.PlaylistRepository
 import com.example.androidmusic.domain.repository.SourceRepository
 import com.example.androidmusic.domain.usecase.AddSourceUseCase
+import com.example.androidmusic.domain.usecase.GetPlaylistsUseCase
+import com.example.androidmusic.domain.usecase.ObservePlaylistUseCase
+import com.example.androidmusic.domain.usecase.PlaylistCommands
 import com.example.androidmusic.domain.usecase.GetAlbumTracksUseCase
 import com.example.androidmusic.domain.usecase.GetAlbumsUseCase
 import com.example.androidmusic.domain.usecase.GetArtistAlbumsUseCase
@@ -67,4 +71,16 @@ object UseCaseModule {
 
     @Provides
     fun provideGetFolderTracksUseCase(repository: AudioFileRepository) = GetFolderTracksUseCase(repository)
+
+    @Provides
+    fun provideGetPlaylistsUseCase(repository: PlaylistRepository) = GetPlaylistsUseCase(repository)
+
+    @Provides
+    fun provideObservePlaylistUseCase(
+        playlistRepository: PlaylistRepository,
+        audioFileRepository: AudioFileRepository,
+    ) = ObservePlaylistUseCase(playlistRepository, audioFileRepository)
+
+    @Provides
+    fun providePlaylistCommands(repository: PlaylistRepository) = PlaylistCommands(repository)
 }

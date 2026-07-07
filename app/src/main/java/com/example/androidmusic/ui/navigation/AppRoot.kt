@@ -36,13 +36,14 @@ import com.example.androidmusic.ui.albums.AlbumDetailRoute
 import com.example.androidmusic.ui.albums.AlbumsRoute
 import com.example.androidmusic.ui.artists.ArtistDetailRoute
 import com.example.androidmusic.ui.artists.ArtistsRoute
-import com.example.androidmusic.ui.common.PlaceholderScreen
 import com.example.androidmusic.ui.folders.FolderDetailRoute
 import com.example.androidmusic.ui.folders.FoldersRoute
 import com.example.androidmusic.ui.library.LibraryRoute
 import com.example.androidmusic.ui.player.MiniPlayer
 import com.example.androidmusic.ui.player.NowPlayingRoute
 import com.example.androidmusic.ui.player.PlayerViewModel
+import com.example.androidmusic.ui.playlists.PlaylistDetailRoute
+import com.example.androidmusic.ui.playlists.PlaylistsRoute
 import com.example.androidmusic.ui.sources.SourcesRoute
 
 private data class TopLevelDestination(val route: String, val label: String, val icon: ImageVector)
@@ -127,7 +128,9 @@ fun AppRoot(navController: NavHostController = rememberNavController()) {
             composable(Destinations.FOLDERS) {
                 FoldersRoute(onOpenFolder = { navController.navigate(Destinations.folderDetail(it)) })
             }
-            composable(Destinations.PLAYLISTS) { PlaceholderScreen("Playlists") }
+            composable(Destinations.PLAYLISTS) {
+                PlaylistsRoute(onOpenPlaylist = { navController.navigate(Destinations.playlistDetail(it)) })
+            }
             composable(Destinations.SOURCES) { SourcesRoute() }
             composable(Destinations.NOW_PLAYING) { NowPlayingRoute() }
             composable(
@@ -147,6 +150,12 @@ fun AppRoot(navController: NavHostController = rememberNavController()) {
                 arguments = listOf(navArgument(Destinations.FOLDER_URI_ARG) { type = NavType.StringType }),
             ) {
                 FolderDetailRoute()
+            }
+            composable(
+                route = Destinations.PLAYLIST_DETAIL,
+                arguments = listOf(navArgument(Destinations.PLAYLIST_ID_ARG) { type = NavType.StringType }),
+            ) {
+                PlaylistDetailRoute(onDeleted = { navController.navigateUp() })
             }
         }
     }
@@ -178,5 +187,6 @@ private fun titleFor(route: String?): String = when (route) {
     Destinations.ALBUM_DETAIL -> "Album"
     Destinations.ARTIST_DETAIL -> "Artist"
     Destinations.FOLDER_DETAIL -> "Folder"
+    Destinations.PLAYLIST_DETAIL -> "Playlist"
     else -> "Library"
 }

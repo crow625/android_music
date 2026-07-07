@@ -15,12 +15,15 @@ object Destinations {
     const val ALBUM_DETAIL = "albums/{albumId}"
     const val ARTIST_DETAIL = "artists/{artistId}"
     const val FOLDER_DETAIL = "folders/{folderUri}"
+    const val PLAYLIST_DETAIL = "playlists/{playlistId}"
 
     const val ALBUM_ID_ARG = "albumId"
     const val ARTIST_ID_ARG = "artistId"
     const val FOLDER_URI_ARG = "folderUri"
+    const val PLAYLIST_ID_ARG = "playlistId"
 
     fun albumDetail(albumId: String): String = "albums/${Uri.encode(albumId)}"
     fun artistDetail(artistId: String): String = "artists/${Uri.encode(artistId)}"
     fun folderDetail(folderUri: String): String = "folders/${Uri.encode(folderUri)}"
+    fun playlistDetail(playlistId: Long): String = "playlists/$playlistId"
 }

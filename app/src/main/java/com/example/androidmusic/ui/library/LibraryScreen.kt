@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Search
@@ -35,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.androidmusic.domain.model.SortOrder
+import com.example.androidmusic.ui.playlists.AddToPlaylistSheet
 
 @Composable
 fun LibraryScreen(
@@ -42,6 +44,9 @@ fun LibraryScreen(
     onEvent: (LibraryEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    // Track whose "add to playlist" sheet is open (null = closed).
+    var addToPlaylistTrackId by remember { mutableStateOf<String?>(null) }
+
     Column(modifier = modifier.fillMaxSize()) {
         SearchAndSortBar(
             query = state.query,
@@ -60,9 +65,17 @@ fun LibraryScreen(
                 )
                 state.isNoMatches -> Text("No matches", modifier = Modifier.padding(24.dp))
                 state.isEmptyLibrary -> EmptyLibrary(onAddFolder = { onEvent(LibraryEvent.OpenSources) })
-                else -> TrackList(state.tracks, onTrackClick = { onEvent(LibraryEvent.PlayTrack(it)) })
+                else -> TrackList(
+                    tracks = state.tracks,
+                    onTrackClick = { onEvent(LibraryEvent.PlayTrack(it)) },
+                    onAddToPlaylist = { addToPlaylistTrackId = it },
+                )
             }
         }
+    }
+
+    addToPlaylistTrackId?.let { trackId ->
+        AddToPlaylistSheet(trackId = trackId, onDismiss = { addToPlaylistTrackId = null })
     }
 }
 
@@ -117,6 +130,7 @@ private fun SearchAndSortBar(
 private fun TrackList(
     tracks: List<TrackUi>,
     onTrackClick: (String) -> Unit,
+    onAddToPlaylist: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(modifier = modifier.fillMaxSize()) {
@@ -124,6 +138,14 @@ private fun TrackList(
             ListItem(
                 headlineContent = { Text(track.title) },
                 supportingContent = { Text("${track.artist} · ${track.album}") },
+                trailingContent = {
+                    IconButton(onClick = { onAddToPlaylist(track.id) }) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.PlaylistAdd,
+                            contentDescription = "Add to playlist",
+                        )
+                    }
+                },
                 modifier = Modifier.clickable { onTrackClick(track.id) },
             )
             HorizontalDivider()
