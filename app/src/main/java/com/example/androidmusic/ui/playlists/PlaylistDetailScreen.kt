@@ -8,7 +8,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Warning
@@ -25,6 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,6 +37,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
 
 @Composable
 fun PlaylistDetailScreen(
@@ -42,6 +48,18 @@ fun PlaylistDetailScreen(
 ) {
     var showRenameDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
+
+    // Local, optimistic copy so a drag animates instantly; the net move is
+    // persisted on drop and the upstream state resyncs this list afterwards.
+    var entries by remember { mutableStateOf(state.entries) }
+    LaunchedEffect(state.entries) { entries = state.entries }
+
+    val lazyListState = rememberLazyListState()
+    val reorderState = rememberReorderableLazyListState(lazyListState) { from, to ->
+        entries = entries.toMutableList().apply { add(to.index, removeAt(from.index)) }
+    }
+    // Index of the dragged item when the drag began (its position in the persisted order).
+    var dragFromIndex by remember { mutableStateOf<Int?>(null) }
 
     Column(modifier = modifier.fillMaxSize()) {
         Header(
@@ -58,15 +76,25 @@ fun PlaylistDetailScreen(
                 modifier = Modifier.padding(16.dp),
             )
         }
-        LazyColumn(modifier = Modifier.fillMaxWidth()) {
-            itemsIndexed(state.entries, key = { _, entry -> entry.entryId }) { index, entry ->
-                EntryRow(
-                    entry = entry,
-                    index = index,
-                    lastIndex = state.entries.lastIndex,
-                    onEvent = onEvent,
-                )
-                HorizontalDivider()
+        LazyColumn(state = lazyListState, modifier = Modifier.fillMaxWidth()) {
+            itemsIndexed(entries, key = { _, entry -> entry.entryId }) { index, entry ->
+                ReorderableItem(reorderState, key = entry.entryId) { _ ->
+                    val handleModifier = Modifier.draggableHandle(
+                        onDragStarted = { dragFromIndex = index },
+                        onDragStopped = {
+                            val from = dragFromIndex
+                            if (from != null && from != index) onEvent(PlaylistDetailEvent.Move(from, index))
+                            dragFromIndex = null
+                        },
+                    )
+                    EntryRow(
+                        entry = entry,
+                        handleModifier = handleModifier,
+                        onClick = { onEvent(PlaylistDetailEvent.PlayEntry(entry.entryId)) },
+                        onRemove = { onEvent(PlaylistDetailEvent.RemoveEntry(entry.entryId)) },
+                    )
+                    HorizontalDivider()
+                }
             }
         }
     }
@@ -149,9 +177,9 @@ private fun Header(
 @Composable
 private fun EntryRow(
     entry: PlaylistEntryUi,
-    index: Int,
-    lastIndex: Int,
-    onEvent: (PlaylistDetailEvent) -> Unit,
+    handleModifier: Modifier,
+    onClick: () -> Unit,
+    onRemove: () -> Unit,
 ) {
     // Grey the whole row when the underlying file can't be found.
     val contentColor = if (entry.isResolved) {
@@ -177,50 +205,23 @@ private fun EntryRow(
             null
         },
         trailingContent = {
-            EntryOverflow(
-                canMoveUp = index > 0,
-                canMoveDown = index < lastIndex,
-                onMoveUp = { onEvent(PlaylistDetailEvent.Move(index, index - 1)) },
-                onMoveDown = { onEvent(PlaylistDetailEvent.Move(index, index + 1)) },
-                onRemove = { onEvent(PlaylistDetailEvent.RemoveEntry(entry.entryId)) },
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = onRemove) {
+                    Icon(Icons.Filled.Close, contentDescription = "Remove from playlist")
+                }
+                Icon(
+                    Icons.Filled.DragHandle,
+                    contentDescription = "Reorder",
+                    modifier = handleModifier,
+                )
+            }
         },
         colors = ListItemDefaults.colors(
             headlineColor = contentColor,
             supportingColor = if (entry.isResolved) MaterialTheme.colorScheme.onSurfaceVariant else contentColor,
         ),
-        modifier = Modifier.clickable(enabled = entry.isResolved) {
-            onEvent(PlaylistDetailEvent.PlayEntry(entry.entryId))
-        },
+        modifier = Modifier.clickable(enabled = entry.isResolved, onClick = onClick),
     )
-}
-
-@Composable
-private fun EntryOverflow(
-    canMoveUp: Boolean,
-    canMoveDown: Boolean,
-    onMoveUp: () -> Unit,
-    onMoveDown: () -> Unit,
-    onRemove: () -> Unit,
-) {
-    var open by remember { mutableStateOf(false) }
-    IconButton(onClick = { open = true }) {
-        Icon(Icons.Filled.MoreVert, contentDescription = "Track options")
-    }
-    DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
-        DropdownMenuItem(text = { Text("Move up") }, enabled = canMoveUp, onClick = {
-            open = false
-            onMoveUp()
-        })
-        DropdownMenuItem(text = { Text("Move down") }, enabled = canMoveDown, onClick = {
-            open = false
-            onMoveDown()
-        })
-        DropdownMenuItem(text = { Text("Remove from playlist") }, onClick = {
-            open = false
-            onRemove()
-        })
-    }
 }
 
 private const val DISABLED_ALPHA = 0.38f

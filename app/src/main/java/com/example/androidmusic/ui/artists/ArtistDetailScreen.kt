@@ -1,6 +1,6 @@
 package com.example.androidmusic.ui.artists
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,14 +14,18 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.androidmusic.ui.albums.AlbumCard
+import com.example.androidmusic.ui.common.DetailTrackRow
+import com.example.androidmusic.ui.playlists.AddToPlaylistSheet
 
 @Composable
 fun ArtistDetailScreen(
@@ -31,7 +35,10 @@ fun ArtistDetailScreen(
     onTrackClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    LazyColumn(modifier = modifier.fillMaxSize()) {
+    var addToPlaylistTrackId by remember { mutableStateOf<String?>(null) }
+
+    Box(modifier = modifier.fillMaxSize()) {
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
         item {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(state.name, style = MaterialTheme.typography.headlineSmall)
@@ -67,12 +74,18 @@ fun ArtistDetailScreen(
             )
         }
         items(state.tracks, key = { it.id }) { track ->
-            ListItem(
-                headlineContent = { Text(track.title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                supportingContent = { Text(track.subtitle, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                modifier = Modifier.clickable { onTrackClick(track.id) },
+            DetailTrackRow(
+                title = track.title,
+                subtitle = track.subtitle,
+                onClick = { onTrackClick(track.id) },
+                onAddToPlaylist = { addToPlaylistTrackId = track.id },
             )
             HorizontalDivider()
+        }
+        }
+
+        addToPlaylistTrackId?.let { trackId ->
+            AddToPlaylistSheet(trackId = trackId, onDismiss = { addToPlaylistTrackId = null })
         }
     }
 }

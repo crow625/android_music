@@ -31,6 +31,7 @@ previewScanner = "0.4.0"
 detekt = "1.23.7"
 leakcanary = "2.14"
 coil = "2.7.0"
+reorderable = "2.4.3"
 
 [libraries]
 # Core / lifecycle / activity
@@ -97,6 +98,7 @@ androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-co
 # Diagnostics (debug-only)
 leakcanary-android = { group = "com.squareup.leakcanary", name = "leakcanary-android", version.ref = "leakcanary" }
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+reorderable = { group = "sh.calvin.reorderable", name = "reorderable", version.ref = "reorderable" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
