@@ -22,6 +22,7 @@ data class TrackEntity(
     @ColumnInfo(name = "file_path") val filePath: String,
     val uri: String,
     @ColumnInfo(name = "folder_uri") val folderUri: String,
+    @ColumnInfo(name = "parent_folder_uri") val parentFolderUri: String,
     @ColumnInfo(name = "album_art_uri") val albumArtUri: String?,
     @ColumnInfo(name = "mb_recording_id") val mbRecordingId: String?,
     @ColumnInfo(name = "is_stale") val isStale: Boolean,

@@ -22,6 +22,7 @@ class TrackMappersTest {
             filePath = "/music/x.flac",
             uri = "file:///music/x.flac",
             folderUri = "tree://root",
+            parentFolderUri = "tree://root/sub",
             albumArtUri = "content://art/1",
             mbRecordingId = "mb1",
             isStale = false,
@@ -32,6 +33,7 @@ class TrackMappersTest {
 
         assertEquals("id1", file.id)
         assertEquals(MediaUri("file:///music/x.flac"), file.uri)
+        assertEquals("tree://root/sub", file.parentFolderUri)
         assertEquals("Title", file.title)
         assertEquals(3, file.trackNumber)
         assertEquals(MediaUri("content://art/1"), file.albumArtUri)
@@ -56,12 +58,14 @@ class TrackMappersTest {
             uri = MediaUri("file:///a.mp3"),
             filePath = "/a.mp3",
             folderUri = MediaUri("tree://root"),
+            parentFolderUri = "tree://root/sub",
             dateIndexed = 42,
         )
 
         assertEquals("stable-id", entity.id)
         assertEquals("file:///a.mp3", entity.uri)
         assertEquals("tree://root", entity.folderUri)
+        assertEquals("tree://root/sub", entity.parentFolderUri)
         assertEquals("mb-9", entity.mbRecordingId)
         assertEquals("content://art/9", entity.albumArtUri)
         assertEquals(false, entity.isStale)

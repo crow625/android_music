@@ -8,6 +8,8 @@ import com.example.androidmusic.domain.usecase.GetAlbumsUseCase
 import com.example.androidmusic.domain.usecase.GetArtistAlbumsUseCase
 import com.example.androidmusic.domain.usecase.GetArtistTracksUseCase
 import com.example.androidmusic.domain.usecase.GetArtistsUseCase
+import com.example.androidmusic.domain.usecase.GetFolderTracksUseCase
+import com.example.androidmusic.domain.usecase.GetFoldersUseCase
 import com.example.androidmusic.domain.usecase.ObserveLibraryUseCase
 import com.example.androidmusic.domain.usecase.ObserveSourcesUseCase
 import com.example.androidmusic.domain.usecase.RemoveSourceUseCase
@@ -59,4 +61,10 @@ object UseCaseModule {
 
     @Provides
     fun provideGetArtistTracksUseCase(repository: AudioFileRepository) = GetArtistTracksUseCase(repository)
+
+    @Provides
+    fun provideGetFoldersUseCase(repository: AudioFileRepository) = GetFoldersUseCase(repository)
+
+    @Provides
+    fun provideGetFolderTracksUseCase(repository: AudioFileRepository) = GetFolderTracksUseCase(repository)
 }

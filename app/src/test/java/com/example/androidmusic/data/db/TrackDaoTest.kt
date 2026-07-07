@@ -94,6 +94,7 @@ class TrackDaoTest {
         filePath = "/music/$id.mp3",
         uri = "file:///music/$id.mp3",
         folderUri = folder,
+        parentFolderUri = folder,
         albumArtUri = null,
         mbRecordingId = null,
         isStale = stale,

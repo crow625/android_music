@@ -3,6 +3,7 @@ package com.example.androidmusic.domain.library
 import com.example.androidmusic.domain.model.Album
 import com.example.androidmusic.domain.model.Artist
 import com.example.androidmusic.domain.model.AudioFile
+import com.example.androidmusic.domain.model.Folder
 
 /**
  * Pure grouping of a flat track list into albums and artists. Album identity is
@@ -64,6 +65,16 @@ object LibraryGroupings {
 
     fun artistAlbums(tracks: List<AudioFile>, artistId: String): List<Album> =
         albums(tracks.filter { artistKey(it) == artistId })
+
+    /** Folders that directly contain audio, keyed by the immediate parent folder uri. */
+    fun folders(tracks: List<AudioFile>): List<Folder> =
+        tracks.groupBy { it.parentFolderUri }
+            .map { (uri, group) -> Folder(uri = uri, trackCount = group.size) }
+            .sortedBy { it.uri }
+
+    fun folderTracks(tracks: List<AudioFile>, folderUri: String): List<AudioFile> =
+        tracks.filter { it.parentFolderUri == folderUri }
+            .sortedWith(compareBy({ it.trackNumber }, { Normalize.key(it.title) }))
 
     private fun albumArtistOf(file: AudioFile): String = file.albumArtist.ifBlank { file.artist }
 }

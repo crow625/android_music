@@ -28,7 +28,7 @@ class BuildQueueUseCase(
             queueOf(libraryTracks().sortedWith(LibraryQuery.comparator(source.sortOrder)))
 
         is QueueSource.FromFolder ->
-            queueOf(audioFileRepository.listAudioFiles(source.folderUri))
+            queueOf(LibraryGroupings.folderTracks(libraryTracks(), source.folderUri.value))
 
         is QueueSource.FromPlaylist ->
             queueOf(playlistRepository.resolveEntries(source.playlistId).mapNotNull { it.resolvedFile })

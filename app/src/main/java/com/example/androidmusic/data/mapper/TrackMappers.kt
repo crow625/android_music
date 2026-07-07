@@ -10,6 +10,7 @@ fun TrackEntity.toAudioFile(): AudioFile = AudioFile(
     id = id,
     uri = MediaUri(uri),
     filePath = filePath,
+    parentFolderUri = parentFolderUri,
     title = title,
     artist = artist,
     album = album,
@@ -31,6 +32,7 @@ fun TrackMetadata.toEntity(
     uri: MediaUri,
     filePath: String,
     folderUri: MediaUri,
+    parentFolderUri: String,
     dateIndexed: Long,
 ): TrackEntity = TrackEntity(
     id = id,
@@ -44,6 +46,7 @@ fun TrackMetadata.toEntity(
     filePath = filePath,
     uri = uri.value,
     folderUri = folderUri.value,
+    parentFolderUri = parentFolderUri,
     albumArtUri = albumArtUri?.value,
     mbRecordingId = musicBrainzRecordingId,
     isStale = false,

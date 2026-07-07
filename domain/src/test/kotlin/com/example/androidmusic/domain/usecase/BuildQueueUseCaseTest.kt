@@ -60,14 +60,16 @@ class BuildQueueUseCaseTest {
     }
 
     @Test
-    fun `FromFolder returns the folder's files`() = runTest {
-        val folder = MediaUri("tree://music/rock")
-        val files = FakeAudioFileRepository(
-            filesByFolder = mapOf(folder.value to listOf(albumA1, albumB1)),
-        )
-        val queue = useCase(files = files).invoke(QueueSource.FromFolder(folder))
+    fun `FromFolder returns tracks in that folder, in track order`() = runTest {
+        val folder = "tree://music/rock"
+        val inFolder1 = audioFile(id = "r1", parentFolderUri = folder, trackNumber = 1)
+        val inFolder2 = audioFile(id = "r2", parentFolderUri = folder, trackNumber = 2)
+        val elsewhere = audioFile(id = "j1", parentFolderUri = "tree://music/jazz")
 
-        assertEquals(listOf("a1", "b1"), queue.items.map { it.id })
+        val queue = useCase(Library(listOf(inFolder2, inFolder1, elsewhere)))
+            .invoke(QueueSource.FromFolder(MediaUri(folder)))
+
+        assertEquals(listOf("r1", "r2"), queue.items.map { it.id })
     }
 
     @Test

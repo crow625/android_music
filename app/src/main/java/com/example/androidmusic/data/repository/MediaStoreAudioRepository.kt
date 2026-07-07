@@ -52,7 +52,7 @@ class MediaStoreAudioRepository @Inject constructor(
         withContext(dispatchers.io) {
             listDocuments(folderUri.toAndroidUri())
                 .filter { isSupported(it.name) }
-                .mapNotNull { doc -> readAudioFile(doc.uri.toMediaUri()) }
+                .mapNotNull { scanned -> readAudioFile(scanned) }
         }
 
     override suspend fun scanSources(sourceUris: List<MediaUri>): ScanReport =
@@ -78,8 +78,8 @@ class MediaStoreAudioRepository @Inject constructor(
     private suspend fun scanSource(source: MediaUri, acc: ScanAccumulator) {
         val found = mutableListOf<String>()
         val entities = mutableListOf<TrackEntity>()
-        listDocuments(source.toAndroidUri()).forEach { doc ->
-            when (val result = classifyDocument(doc.name, doc.uri.toMediaUri(), source)) {
+        listDocuments(source.toAndroidUri()).forEach { scanned ->
+            when (val result = classifyDocument(scanned, source)) {
                 DocResult.Skipped -> acc.skipped++
                 is DocResult.Unreadable -> {
                     acc.unreadable++
@@ -97,11 +97,18 @@ class MediaStoreAudioRepository @Inject constructor(
         if (stale.isNotEmpty()) trackDao.markStale(stale)
     }
 
-    private suspend fun classifyDocument(name: String?, fileUri: MediaUri, source: MediaUri): DocResult {
-        if (!isSupported(name)) return DocResult.Skipped
-        val metadata = metadataReader.read(fileUri) ?: return DocResult.Unreadable(fileUri)
+    private suspend fun classifyDocument(scanned: ScannedFile, source: MediaUri): DocResult {
+        if (!isSupported(scanned.name)) return DocResult.Skipped
+        val metadata = metadataReader.read(scanned.uri) ?: return DocResult.Unreadable(scanned.uri)
         val id = metadata.stableId()
-        val entity = metadata.toEntity(id, fileUri, fileUri.value, source, clock.now().toEpochMilli())
+        val entity = metadata.toEntity(
+            id = id,
+            uri = scanned.uri,
+            filePath = scanned.uri.value,
+            folderUri = source,
+            parentFolderUri = scanned.parentUri,
+            dateIndexed = clock.now().toEpochMilli(),
+        )
         return DocResult.Indexed(entity)
     }
 
@@ -111,29 +118,41 @@ class MediaStoreAudioRepository @Inject constructor(
         data class Indexed(val entity: TrackEntity) : DocResult
     }
 
-    private suspend fun readAudioFile(fileUri: MediaUri): AudioFile? {
-        val metadata = metadataReader.read(fileUri) ?: return null
-        return metadata
-            .toEntity(metadata.stableId(), fileUri, fileUri.value, fileUri, clock.now().toEpochMilli())
-            .toAudioFile()
+    private suspend fun readAudioFile(scanned: ScannedFile): AudioFile? {
+        val metadata = metadataReader.read(scanned.uri) ?: return null
+        return metadata.toEntity(
+            id = metadata.stableId(),
+            uri = scanned.uri,
+            filePath = scanned.uri.value,
+            folderUri = MediaUri(scanned.parentUri),
+            parentFolderUri = scanned.parentUri,
+            dateIndexed = clock.now().toEpochMilli(),
+        ).toAudioFile()
     }
 
     private fun TrackMetadata.stableId(): String =
         StableTrackId.compute(title, artist, album, durationMs, musicBrainzRecordingId)
 
-    private fun listDocuments(treeUri: Uri): List<DocumentFile> {
+    private fun listDocuments(treeUri: Uri): List<ScannedFile> {
         val root = DocumentFile.fromTreeUri(context, treeUri) ?: return emptyList()
-        val files = mutableListOf<DocumentFile>()
+        val files = mutableListOf<ScannedFile>()
         val stack = ArrayDeque<DocumentFile>()
         stack.addLast(root)
         while (stack.isNotEmpty()) {
             val dir = stack.removeLast()
+            val parentUri = dir.uri.toString()
             dir.listFiles().forEach { child ->
-                if (child.isDirectory) stack.addLast(child) else files += child
+                if (child.isDirectory) {
+                    stack.addLast(child)
+                } else {
+                    files += ScannedFile(child.uri.toMediaUri(), child.name, parentUri)
+                }
             }
         }
         return files
     }
+
+    private data class ScannedFile(val uri: MediaUri, val name: String?, val parentUri: String)
 
     private fun isSupported(name: String?): Boolean {
         val ext = name?.substringAfterLast('.', "")?.lowercase().orEmpty()

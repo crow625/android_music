@@ -59,6 +59,19 @@ class LibraryGroupingsTest {
     }
 
     @Test
+    fun `folders group by parent folder uri with track counts`() {
+        val tracks = listOf(
+            audioFile(id = "1", parentFolderUri = "tree://a"),
+            audioFile(id = "2", parentFolderUri = "tree://a"),
+            audioFile(id = "3", parentFolderUri = "tree://b"),
+        )
+        val folders = LibraryGroupings.folders(tracks)
+
+        assertEquals(listOf("tree://a", "tree://b"), folders.map { it.uri })
+        assertEquals(2, folders.first { it.uri == "tree://a" }.trackCount)
+    }
+
+    @Test
     fun `albumKey is case- and whitespace-insensitive`() {
         val a = LibraryGroupings.albumKey(audioFile(album = "Toxicity", artist = "SOAD"))
         val b = LibraryGroupings.albumKey(audioFile(album = " toxicity ", artist = "soad"))

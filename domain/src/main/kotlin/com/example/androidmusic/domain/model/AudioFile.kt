@@ -11,6 +11,8 @@ data class AudioFile(
     val id: String,
     val uri: MediaUri,
     val filePath: String,
+    /** URI of the immediate containing folder (for the Folders view). */
+    val parentFolderUri: String,
     val title: String,
     val artist: String,
     val album: String,

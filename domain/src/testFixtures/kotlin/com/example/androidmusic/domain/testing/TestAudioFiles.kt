@@ -16,11 +16,13 @@ fun audioFile(
     durationMs: Long = 180_000L,
     filePath: String = "/music/$id.mp3",
     uri: MediaUri = MediaUri("file://$filePath"),
+    parentFolderUri: String = "tree://music",
     albumArtUri: MediaUri? = null,
 ): AudioFile = AudioFile(
     id = id,
     uri = uri,
     filePath = filePath,
+    parentFolderUri = parentFolderUri,
     title = title,
     artist = artist,
     album = album,

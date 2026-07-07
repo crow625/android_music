@@ -7,6 +7,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.PlaylistPlay
 import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -36,6 +37,8 @@ import com.example.androidmusic.ui.albums.AlbumsRoute
 import com.example.androidmusic.ui.artists.ArtistDetailRoute
 import com.example.androidmusic.ui.artists.ArtistsRoute
 import com.example.androidmusic.ui.common.PlaceholderScreen
+import com.example.androidmusic.ui.folders.FolderDetailRoute
+import com.example.androidmusic.ui.folders.FoldersRoute
 import com.example.androidmusic.ui.library.LibraryRoute
 import com.example.androidmusic.ui.player.MiniPlayer
 import com.example.androidmusic.ui.player.NowPlayingRoute
@@ -48,6 +51,7 @@ private val topLevelDestinations = listOf(
     TopLevelDestination(Destinations.LIBRARY, "Library", Icons.Filled.LibraryMusic),
     TopLevelDestination(Destinations.ALBUMS, "Albums", Icons.Filled.Album),
     TopLevelDestination(Destinations.ARTISTS, "Artists", Icons.Filled.Person),
+    TopLevelDestination(Destinations.FOLDERS, "Folders", Icons.Filled.FolderOpen),
     TopLevelDestination(Destinations.PLAYLISTS, "Playlists", Icons.AutoMirrored.Filled.PlaylistPlay),
 )
 
@@ -120,6 +124,9 @@ fun AppRoot(navController: NavHostController = rememberNavController()) {
             composable(Destinations.ARTISTS) {
                 ArtistsRoute(onOpenArtist = { navController.navigate(Destinations.artistDetail(it)) })
             }
+            composable(Destinations.FOLDERS) {
+                FoldersRoute(onOpenFolder = { navController.navigate(Destinations.folderDetail(it)) })
+            }
             composable(Destinations.PLAYLISTS) { PlaceholderScreen("Playlists") }
             composable(Destinations.SOURCES) { SourcesRoute() }
             composable(Destinations.NOW_PLAYING) { NowPlayingRoute() }
@@ -134,6 +141,12 @@ fun AppRoot(navController: NavHostController = rememberNavController()) {
                 arguments = listOf(navArgument(Destinations.ARTIST_ID_ARG) { type = NavType.StringType }),
             ) {
                 ArtistDetailRoute(onOpenAlbum = { navController.navigate(Destinations.albumDetail(it)) })
+            }
+            composable(
+                route = Destinations.FOLDER_DETAIL,
+                arguments = listOf(navArgument(Destinations.FOLDER_URI_ARG) { type = NavType.StringType }),
+            ) {
+                FolderDetailRoute()
             }
         }
     }
@@ -161,7 +174,9 @@ private fun titleFor(route: String?): String = when (route) {
     Destinations.PLAYLISTS -> "Playlists"
     Destinations.SOURCES -> "Folder sources"
     Destinations.NOW_PLAYING -> "Now Playing"
+    Destinations.FOLDERS -> "Folders"
     Destinations.ALBUM_DETAIL -> "Album"
     Destinations.ARTIST_DETAIL -> "Artist"
+    Destinations.FOLDER_DETAIL -> "Folder"
     else -> "Library"
 }
