@@ -1,6 +1,7 @@
 package com.example.androidmusic.ui.playlists
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -48,6 +49,7 @@ fun PlaylistDetailScreen(
 ) {
     var showRenameDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var entryPendingRemoval by remember { mutableStateOf<PlaylistEntryUi?>(null) }
 
     // Local, optimistic copy so a drag animates instantly; the net move is
     // persisted on drop and the upstream state resyncs this list afterwards.
@@ -58,8 +60,9 @@ fun PlaylistDetailScreen(
     val reorderState = rememberReorderableLazyListState(lazyListState) { from, to ->
         entries = entries.toMutableList().apply { add(to.index, removeAt(from.index)) }
     }
-    // Index of the dragged item when the drag began (its position in the persisted order).
-    var dragFromIndex by remember { mutableStateOf<Int?>(null) }
+    // Stable key of the row being dragged; used to compute the net move on drop
+    // (the per-item index is captured at drag start and goes stale mid-drag).
+    var draggedKey by remember { mutableStateOf<Long?>(null) }
 
     Column(modifier = modifier.fillMaxSize()) {
         Header(
@@ -77,21 +80,17 @@ fun PlaylistDetailScreen(
             )
         }
         LazyColumn(state = lazyListState, modifier = Modifier.fillMaxWidth()) {
-            itemsIndexed(entries, key = { _, entry -> entry.entryId }) { index, entry ->
+            itemsIndexed(entries, key = { _, entry -> entry.entryId }) { _, entry ->
                 ReorderableItem(reorderState, key = entry.entryId) { _ ->
                     val handleModifier = Modifier.draggableHandle(
-                        onDragStarted = { dragFromIndex = index },
-                        onDragStopped = {
-                            val from = dragFromIndex
-                            if (from != null && from != index) onEvent(PlaylistDetailEvent.Move(from, index))
-                            dragFromIndex = null
-                        },
+                        onDragStarted = { draggedKey = entry.entryId },
+                        onDragStopped = { persistMove(draggedKey, state.entries, entries, onEvent) },
                     )
                     EntryRow(
                         entry = entry,
                         handleModifier = handleModifier,
                         onClick = { onEvent(PlaylistDetailEvent.PlayEntry(entry.entryId)) },
-                        onRemove = { onEvent(PlaylistDetailEvent.RemoveEntry(entry.entryId)) },
+                        onRemove = { entryPendingRemoval = entry },
                     )
                     HorizontalDivider()
                 }
@@ -112,19 +111,46 @@ fun PlaylistDetailScreen(
         )
     }
     if (showDeleteDialog) {
-        AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Delete playlist?") },
-            text = { Text("\"${state.name}\" will be removed. Your audio files are not affected.") },
-            confirmButton = {
-                TextButton(onClick = {
-                    showDeleteDialog = false
-                    onEvent(PlaylistDetailEvent.Delete)
-                }) { Text("Delete") }
+        ConfirmDialog(
+            title = "Delete playlist?",
+            body = "\"${state.name}\" will be removed. Your audio files are not affected.",
+            confirmLabel = "Delete",
+            onConfirm = {
+                showDeleteDialog = false
+                onEvent(PlaylistDetailEvent.Delete)
             },
-            dismissButton = { TextButton(onClick = { showDeleteDialog = false }) { Text("Cancel") } },
+            onDismiss = { showDeleteDialog = false },
         )
     }
+    entryPendingRemoval?.let { entry ->
+        ConfirmDialog(
+            title = "Remove from playlist?",
+            body = "\"${entry.title}\" will be removed from this playlist.",
+            confirmLabel = "Remove",
+            onConfirm = {
+                onEvent(PlaylistDetailEvent.RemoveEntry(entry.entryId))
+                entryPendingRemoval = null
+            },
+            onDismiss = { entryPendingRemoval = null },
+        )
+    }
+}
+
+/**
+ * Translates the visual drag result into a single persisted move: the dragged
+ * key's position in the persisted order ([persisted]) → its position in the
+ * locally reordered [local] list. No-op if unchanged.
+ */
+private fun persistMove(
+    draggedKey: Long?,
+    persisted: List<PlaylistEntryUi>,
+    local: List<PlaylistEntryUi>,
+    onEvent: (PlaylistDetailEvent) -> Unit,
+) {
+    val key = draggedKey ?: return
+    val from = persisted.indexOfFirst { it.entryId == key }
+    val to = local.indexOfFirst { it.entryId == key }
+    if (from >= 0 && to >= 0 && from != to) onEvent(PlaylistDetailEvent.Move(from, to))
 }
 
 @Composable
@@ -143,19 +169,22 @@ private fun Header(
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f),
             )
-            var menuOpen by remember { mutableStateOf(false) }
-            IconButton(onClick = { menuOpen = true }) {
-                Icon(Icons.Filled.MoreVert, contentDescription = "Playlist options")
-            }
-            DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
-                DropdownMenuItem(text = { Text("Rename") }, onClick = {
-                    menuOpen = false
-                    onRenameClick()
-                })
-                DropdownMenuItem(text = { Text("Delete playlist") }, onClick = {
-                    menuOpen = false
-                    onDeleteClick()
-                })
+            // Box anchors the dropdown under the overflow button, not the whole row.
+            Box {
+                var menuOpen by remember { mutableStateOf(false) }
+                IconButton(onClick = { menuOpen = true }) {
+                    Icon(Icons.Filled.MoreVert, contentDescription = "Playlist options")
+                }
+                DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                    DropdownMenuItem(text = { Text("Rename") }, onClick = {
+                        menuOpen = false
+                        onRenameClick()
+                    })
+                    DropdownMenuItem(text = { Text("Delete playlist") }, onClick = {
+                        menuOpen = false
+                        onDeleteClick()
+                    })
+                }
             }
         }
         Text(
@@ -221,6 +250,23 @@ private fun EntryRow(
             supportingColor = if (entry.isResolved) MaterialTheme.colorScheme.onSurfaceVariant else contentColor,
         ),
         modifier = Modifier.clickable(enabled = entry.isResolved, onClick = onClick),
+    )
+}
+
+@Composable
+private fun ConfirmDialog(
+    title: String,
+    body: String,
+    confirmLabel: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(title) },
+        text = { Text(body) },
+        confirmButton = { TextButton(onClick = onConfirm) { Text(confirmLabel) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
     )
 }
 
