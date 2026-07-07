@@ -3,6 +3,7 @@ package com.example.androidmusic.di
 import android.content.Context
 import androidx.room.Room
 import com.example.androidmusic.data.db.AppDatabase
+import com.example.androidmusic.data.db.PlaylistDao
 import com.example.androidmusic.data.db.SourceFolderDao
 import com.example.androidmusic.data.db.TrackDao
 import dagger.Module
@@ -31,4 +32,7 @@ object DataModule {
 
     @Provides
     fun provideSourceFolderDao(database: AppDatabase): SourceFolderDao = database.sourceFolderDao()
+
+    @Provides
+    fun providePlaylistDao(database: AppDatabase): PlaylistDao = database.playlistDao()
 }

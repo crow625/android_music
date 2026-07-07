@@ -1,6 +1,5 @@
 package com.example.androidmusic.di
 
-import com.example.androidmusic.data.repository.StubPlaylistRepository
 import com.example.androidmusic.domain.concurrency.DispatcherProvider
 import com.example.androidmusic.domain.repository.AudioFileRepository
 import com.example.androidmusic.domain.repository.PlaylistRepository
@@ -40,8 +39,4 @@ abstract class PlaybackBindsModule {
     @Binds
     @Singleton
     abstract fun bindPlaybackController(impl: MediaControllerPlaybackController): PlaybackController
-
-    @Binds
-    @Singleton
-    abstract fun bindPlaylistRepository(impl: StubPlaylistRepository): PlaylistRepository
 }

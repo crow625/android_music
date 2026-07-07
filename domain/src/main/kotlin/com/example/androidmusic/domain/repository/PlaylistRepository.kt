@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.Flow
 interface PlaylistRepository {
     fun getPlaylists(): Flow<List<Playlist>>
     suspend fun createPlaylist(name: String): Playlist
+    suspend fun renamePlaylist(playlistId: Long, name: String)
+    suspend fun deletePlaylist(playlistId: Long)
     suspend fun addTrack(playlistId: Long, track: AudioFile)
     suspend fun removeTrack(playlistId: Long, entryId: Long)
     suspend fun reorderTrack(playlistId: Long, from: Int, to: Int)

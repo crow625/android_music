@@ -16,12 +16,15 @@ import com.example.androidmusic.diagnostics.db.DiagnosticEventEntity
         DiagnosticEventEntity::class,
         TrackEntity::class,
         SourceFolderEntity::class,
+        PlaylistEntity::class,
+        PlaylistEntryEntity::class,
     ],
-    version = 3,
+    version = 4,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun diagnosticEventDao(): DiagnosticEventDao
     abstract fun trackDao(): TrackDao
     abstract fun sourceFolderDao(): SourceFolderDao
+    abstract fun playlistDao(): PlaylistDao
 }

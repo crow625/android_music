@@ -2,9 +2,11 @@ package com.example.androidmusic.di
 
 import com.example.androidmusic.data.AndroidMetadataReader
 import com.example.androidmusic.data.repository.MediaStoreAudioRepository
+import com.example.androidmusic.data.repository.RoomPlaylistRepository
 import com.example.androidmusic.data.repository.RoomSourceRepository
 import com.example.androidmusic.domain.metadata.MetadataReader
 import com.example.androidmusic.domain.repository.AudioFileRepository
+import com.example.androidmusic.domain.repository.PlaylistRepository
 import com.example.androidmusic.domain.repository.SourceRepository
 import dagger.Binds
 import dagger.Module
@@ -28,4 +30,8 @@ abstract class DataBindsModule {
     @Binds
     @Singleton
     abstract fun bindMetadataReader(impl: AndroidMetadataReader): MetadataReader
+
+    @Binds
+    @Singleton
+    abstract fun bindPlaylistRepository(impl: RoomPlaylistRepository): PlaylistRepository
 }
