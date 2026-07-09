@@ -9,7 +9,6 @@ object Destinations {
     const val ARTISTS = "artists"
     const val FOLDERS = "folders"
     const val PLAYLISTS = "playlists"
-    const val SOURCES = "sources"
     const val NOW_PLAYING = "now-playing"
 
     const val ALBUM_DETAIL = "albums/{albumId}"

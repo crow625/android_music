@@ -6,7 +6,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.PlaylistPlay
 import androidx.compose.material.icons.filled.Album
-import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.Person
@@ -44,7 +43,6 @@ import com.example.androidmusic.ui.player.NowPlayingRoute
 import com.example.androidmusic.ui.player.PlayerViewModel
 import com.example.androidmusic.ui.playlists.PlaylistDetailRoute
 import com.example.androidmusic.ui.playlists.PlaylistsRoute
-import com.example.androidmusic.ui.sources.SourcesRoute
 
 private data class TopLevelDestination(val route: String, val label: String, val icon: ImageVector)
 
@@ -70,15 +68,6 @@ fun AppRoot(navController: NavHostController = rememberNavController()) {
                     if (!isTopLevel) {
                         IconButton(onClick = { navController.navigateUp() }) {
                             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                        }
-                    }
-                },
-                actions = {
-                    if (isTopLevel) {
-                        IconButton(onClick = {
-                            navController.navigate(Destinations.SOURCES) { launchSingleTop = true }
-                        }) {
-                            Icon(Icons.Filled.Folder, contentDescription = "Folder sources")
                         }
                     }
                 },
@@ -117,7 +106,7 @@ fun AppRoot(navController: NavHostController = rememberNavController()) {
             modifier = Modifier.padding(padding),
         ) {
             composable(Destinations.LIBRARY) {
-                LibraryRoute(onOpenSources = { navController.navigate(Destinations.SOURCES) })
+                LibraryRoute(onOpenSources = { navController.navigateTopLevel(Destinations.FOLDERS) })
             }
             composable(Destinations.ALBUMS) {
                 AlbumsRoute(onOpenAlbum = { navController.navigate(Destinations.albumDetail(it)) })
@@ -131,7 +120,6 @@ fun AppRoot(navController: NavHostController = rememberNavController()) {
             composable(Destinations.PLAYLISTS) {
                 PlaylistsRoute(onOpenPlaylist = { navController.navigate(Destinations.playlistDetail(it)) })
             }
-            composable(Destinations.SOURCES) { SourcesRoute() }
             composable(Destinations.NOW_PLAYING) { NowPlayingRoute() }
             composable(
                 route = Destinations.ALBUM_DETAIL,
@@ -181,7 +169,6 @@ private fun titleFor(route: String?): String = when (route) {
     Destinations.ALBUMS -> "Albums"
     Destinations.ARTISTS -> "Artists"
     Destinations.PLAYLISTS -> "Playlists"
-    Destinations.SOURCES -> "Folder sources"
     Destinations.NOW_PLAYING -> "Now Playing"
     Destinations.FOLDERS -> "Folders"
     Destinations.ALBUM_DETAIL -> "Album"

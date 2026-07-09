@@ -37,7 +37,7 @@ class PreviewScreenshotTest(
         // for minutes. They remain @Preview for IDE reference but are not goldens.
         private val ANIMATED_PREVIEWS = setOf(
             "LibraryLoadingPreview",
-            "SourcesScanningPreview",
+            "FoldersScanningPreview",
         )
 
         @JvmStatic
