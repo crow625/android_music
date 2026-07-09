@@ -84,7 +84,7 @@ fun PlaylistDetailScreen(
                 ReorderableItem(reorderState, key = entry.entryId) { _ ->
                     val handleModifier = Modifier.draggableHandle(
                         onDragStarted = { draggedKey = entry.entryId },
-                        onDragStopped = { persistMove(draggedKey, state.entries, entries, onEvent) },
+                        onDragStopped = { reorderMove(draggedKey, state.entries, entries)?.let(onEvent) },
                     )
                     EntryRow(
                         entry = entry,
@@ -134,23 +134,6 @@ fun PlaylistDetailScreen(
             onDismiss = { entryPendingRemoval = null },
         )
     }
-}
-
-/**
- * Translates the visual drag result into a single persisted move: the dragged
- * key's position in the persisted order ([persisted]) → its position in the
- * locally reordered [local] list. No-op if unchanged.
- */
-private fun persistMove(
-    draggedKey: Long?,
-    persisted: List<PlaylistEntryUi>,
-    local: List<PlaylistEntryUi>,
-    onEvent: (PlaylistDetailEvent) -> Unit,
-) {
-    val key = draggedKey ?: return
-    val from = persisted.indexOfFirst { it.entryId == key }
-    val to = local.indexOfFirst { it.entryId == key }
-    if (from >= 0 && to >= 0 && from != to) onEvent(PlaylistDetailEvent.Move(from, to))
 }
 
 @Composable
